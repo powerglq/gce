@@ -16,7 +16,14 @@
 
 </div>
 
-<!-- 截图（docs/images/）：newtab.png 新标签页 / settings.png 设置 / notebook.png 记事本 / fab.png 网页悬浮按钮 -->
+![新标签页](docs/images/newtab.png)
+
+<table>
+  <tr>
+    <td><img src="docs/images/notebook.png" alt="记事本" /></td>
+    <td><img src="docs/images/settings.png" alt="设置" /></td>
+  </tr>
+</table>
 
 ## ✨ 功能
 
