@@ -1,0 +1,190 @@
+/**
+ * 浮动面板统一方案（UI Kit）
+ * ================================================================
+ * 适用于所有「可拖拽、可缩放、居中显示」的浮动面板：
+ *   记事本面板 / 设置抽屉 / 收纳箱 / 以及后续新增的任意面板
+ *
+ * 为什么需要它：
+ *   历史上三个面板各自实现样式，标题栏出现三套高度（44 / 48 / 47px）、
+ *   三套内边距、三套边框色，关闭按钮也有 28 / 30 / 无边框 20px 三种。
+ *   新增面板时无从判断该照抄哪个，于是继续分叉。
+ *
+ * 用法：
+ *   <div class="gce-panel gce-drag-panel" :style="panelStyle">
+ *     <header class="gce-panel-hdr gce-drag-handle" @pointerdown="onDragStart">
+ *       <div class="gce-panel-title">标题</div>
+ *       <div class="gce-panel-actions">
+ *         <button class="gce-panel-close" @click="close">×</button>
+ *       </div>
+ *     </header>
+ *     <div class="gce-panel-body"> ... </div>
+ *     <footer class="gce-panel-footer"> ... </footer>
+ *   </div>
+ *
+ * 修饰类：
+ */
+
+/* ---------- 尺寸令牌 ---------- */
+:root {
+  --panel-w: min(780px, calc(100vw - 36px));
+  --panel-h: min(560px, calc(100vh - 100px));
+  --panel-hdr-h: 48px;
+  --panel-close-size: 30px;
+}
+
+/* ---------- 遮罩 ----------
+   遮罩必须紧贴对应面板的层级：遮罩 < 面板。
+   三个面板历史上层级不同（记事本/收纳箱在 panel 级，设置在 drawer 级），
+   这里保留这种差异并显式化，避免强行统一导致层叠关系错乱。 */
+.gce-panel-mask {
+  position: fixed;
+  inset: 0;
+  background: var(--scrim);
+  z-index: var(--z-panel);
+}
+.gce-panel-mask--drawer { z-index: var(--z-drawer); }
+
+/* ---------- 面板外壳 ---------- */
+.gce-panel {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  width: var(--panel-w);
+  max-height: var(--panel-h);
+  background: var(--overlay);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  overflow: hidden;
+  color: var(--text);
+  z-index: var(--z-panel-inner);
+}
+/* 设置抽屉层级更高（用于覆盖面板类浮层） */
+.gce-panel--drawer { z-index: var(--z-drawer-panel); }
+
+/* ---------- 标题栏（三面板统一，此前为 44 / 48 / 47px 三套） ---------- */
+.gce-panel-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  height: var(--panel-hdr-h);
+  padding: 0 var(--sp-4);
+  border-bottom: 1px solid var(--divider);
+  flex-shrink: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.gce-panel-title {
+  font-size: var(--fs-md);
+  font-weight: 700;
+  letter-spacing: .5px;
+  color: var(--text);
+  margin: 0;
+}
+
+/* 标题旁的次要信息（计数、标签等） */
+.gce-panel-sub {
+  font-size: var(--fs-sm);
+  color: var(--muted);
+  margin-left: var(--sp-2);
+}
+
+.gce-panel-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  flex-shrink: 0;
+}
+
+/* ---------- 关闭按钮（三面板统一，此前为 28 / 30 / 无边框 20px 三种） ---------- */
+.gce-panel-close {
+  width: var(--panel-close-size);
+  height: var(--panel-close-size);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: var(--r-md);
+  border: 1px solid var(--divider);
+  background: var(--surface-hover);
+  color: var(--text);
+  /* 关闭符号统一用 × (U+00D7)：字库覆盖最广，不会像 ✖ 那样在部分系统
+     被渲染成彩色 emoji。15px 是它在 30px 按钮里的合适视觉重量。 */
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+.gce-panel-close:hover {
+  /* 悬停：底色转为危险红实色，× 变白，形成明确的「会关闭」提示 */
+  background: var(--danger);
+  border-color: transparent;
+  color: var(--on-accent);
+}
+.gce-panel-close:active {
+  transform: translateY(1px);
+  background: color-mix(in srgb, var(--danger) 88%, #000);
+}
+
+/* ---------- 内容区 / 底部 ---------- */
+.gce-panel-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.gce-panel-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  border-top: 1px solid var(--divider);
+  flex-shrink: 0;
+}
+
+/* ---------- 缩放手柄 ---------- */
+.gce-panel-resize {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 24px;
+  height: 24px;
+  cursor: nwse-resize;
+  z-index: var(--z-base);
+}
+
+/* ---------- 拖拽手柄光标（统一三个面板） ---------- */
+.gce-drag-handle {
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  touch-action: none;
+}
+.gce-drag-handle:active,
+.gce-drag-handle.is-dragging {
+  cursor: grabbing;
+}
+/* 触屏没有 grab/grabbing 语义，用默认指针避免误导 */
+@media (hover: none) and (pointer: coarse) {
+  .gce-drag-handle { cursor: default; }
+}
+
+/* ---------- 响应式 ----------
+   这里只统一「标题栏」的尺寸，不改面板本身的宽高。
+   三个面板的窄屏框体尺寸是各自的设计决定（记事本更紧凑、设置近乎全屏、
+   收纳箱自适应），属于刻意的差异，由各自组件的媒体查询负责。
+   需要统一的是标题栏高度与关闭按钮触摸目标。 */
+@media (hover: none) and (pointer: coarse) {
+  :root { --panel-close-size: 44px; } /* 触摸目标不小于 44px */
+}

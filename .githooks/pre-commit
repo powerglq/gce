@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# 提交前检查：拦截密钥、扩展打包产物与临时文件，避免误提交到公开仓库。
+# 启用方式（克隆仓库后执行一次）：npm run setup:hooks
+set -euo pipefail
+
+files=$(git diff --cached --name-only --diff-filter=ACMR)
+[ -z "$files" ] && exit 0
+
+fail=0
+report() {
+  printf '\n❌ %s\n' "$1"
+  printf '%s\n' "$2" | sed 's/^/  - /'
+  fail=1
+}
+
+# 1) 按文件名拦截：签名私钥、扩展打包产物、证书、环境变量、备份 / 临时文件
+blocked=$(printf '%s\n' "$files" | grep -Ei '\.(pem|key|crx|p12|pfx)$|(^|/)\.env(\..+)?$|\.(bak|old|tmp)$|(^|/)(Thumbs\.db|\.DS_Store)$' || true)
+[ -n "$blocked" ] && report '以下文件不允许提交（密钥 / 打包产物 / 临时文件）：' "$blocked"
+
+# 2) 按内容拦截：任何文件中出现私钥块
+#    模式里用 [ ] 表示空格，使本脚本自身的文本不会命中这条规则
+leaked=$(git diff --cached --name-only -G'PRIVATE[ ]KEY-----' --diff-filter=ACMR || true)
+[ -n "$leaked" ] && report '以下文件中包含私钥内容：' "$leaked"
+
+if [ "$fail" -ne 0 ]; then
+  printf '\n请用 git restore --staged <文件> 取消暂存后再提交。\n'
+  exit 1
+fi
+exit 0

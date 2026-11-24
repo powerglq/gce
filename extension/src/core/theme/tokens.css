@@ -1,0 +1,189 @@
+:root {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ============ 颜色（随主题切换） ============
+   组件只引用这里的令牌，不写死颜色；切换主题只改 <html data-theme>（见 theme.ts）。
+   --ink / --paper / --line 是 RGB 三元组，用于半透明：rgb(var(--ink) / .08)
+     ink   前景色（深色主题为白，浅色主题为深灰蓝）：悬停底色、分隔线等
+     paper 表面色（深色主题为深蓝灰，浅色主题为白）：毛玻璃、卡片底色
+   不在此列的固定颜色：图片预览 / 缩略图删除按钮 / 分组名提示固定为深色，
+   书签配色与调色板属于用户内容。 */
+:root,
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0f1117;
+  --card: #171923;
+  --border: #2a2e3d;
+  --text: #e5e7eb;
+  --text-strong: #fff;
+  --muted: #a3a3b0;
+  --primary: #5b8cff;
+  --on-accent: #fff;           /* 主色 / 危险色 / 字母图标上的文字 */
+  --tile: #2b2f3c;             /* 无图标、未设配色时的字母图标底色 */
+
+  --ink: 255 255 255;
+  --paper: 17 24 39;
+  --line: 42 46 61;
+
+  --glass: rgb(var(--paper) / .5);
+  --surface: rgb(var(--paper) / .5);        /* 面板/卡片类表面 */
+  --surface-solid: #171923;                 /* 不透明表面 */
+  --surface-hover: rgb(var(--ink) / .06);
+  --surface-active: rgb(var(--ink) / .10);
+  --overlay: rgb(var(--paper) / .62);       /* 下拉/菜单/弹窗浮层 */
+  --overlay-hover: rgb(var(--ink) / .08);
+  --menu: rgba(22, 27, 34, .92);            /* 右键菜单（需要更不透明） */
+  --divider: rgb(var(--ink) / .10);
+  --field: rgba(0, 0, 0, .25);              /* 面板内的小输入框 */
+
+  --shadow-sm: 0 6px 18px rgba(0, 0, 0, .35);
+  --shadow: 0 10px 24px rgba(0, 0, 0, .45);
+  --shadow-lg: 0 18px 48px rgba(0, 0, 0, .45);
+  --scrim: rgba(0, 0, 0, .35);              /* 遮罩 */
+  --scrim-strong: rgba(0, 0, 0, .45);
+
+  /* 危险色：深色主题下 #ef4444 对 #171923 约 4.9:1，达 WCAG AA */
+  --danger: #ef4444;
+  --danger-hover: rgba(239, 68, 68, .16);
+  --danger-text: #ff8a8a;
+  --success: #10b981;
+  --warn: #f59e0b;
+  --status-ok: rgb(170 255 210);            /* 记事本保存状态点 */
+  --status-busy: rgb(255 214 140);
+  --toast-bg: rgba(0, 0, 0, .75);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #eef1f6;
+  --card: #fff;
+  --border: #d6dbe4;
+  --text: #1f2937;
+  --text-strong: #0f172a;
+  --muted: #64748b;
+  --primary: #2563eb;          /* 对白色约 5.2:1 */
+  --on-accent: #fff;
+  --tile: #64748b;
+
+  --ink: 15 23 42;
+  --paper: 255 255 255;
+  --line: 203 213 225;
+
+  --glass: rgb(var(--paper) / .62);
+  --surface: rgb(var(--paper) / .62);
+  --surface-solid: #fff;
+  --surface-hover: rgb(var(--ink) / .05);
+  --surface-active: rgb(var(--ink) / .09);
+  --overlay: rgb(var(--paper) / .6);        /* 与深色主题透明度接近，保留毛玻璃效果 */
+  --overlay-hover: rgb(var(--ink) / .06);
+  --menu: rgba(255, 255, 255, .95);
+  --divider: rgb(var(--ink) / .10);
+  --field: rgba(255, 255, 255, .8);
+
+  --shadow-sm: 0 6px 18px rgba(15, 23, 42, .10);
+  --shadow: 0 10px 24px rgba(15, 23, 42, .14);
+  --shadow-lg: 0 18px 48px rgba(15, 23, 42, .18);
+  --scrim: rgba(15, 23, 42, .28);
+  --scrim-strong: rgba(15, 23, 42, .38);
+
+  /* #dc2626 对白色约 4.8:1 */
+  --danger: #dc2626;
+  --danger-hover: rgba(220, 38, 38, .10);
+  --danger-text: #b91c1c;
+  --success: #059669;
+  --warn: #d97706;
+  --status-ok: #10b981;
+  --status-busy: #f59e0b;
+  --toast-bg: rgba(15, 23, 42, .85);
+}
+
+:root {
+  /* Global UI tokens */
+  --radius: 12px;
+
+  /* 间距标尺（4 的倍数） */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 20px; --sp-6: 24px; --sp-8: 32px; --sp-10: 40px;
+
+  /* 圆角标尺 */
+  --r-sm: 6px; --r-md: 8px; --r-lg: 12px; --r-xl: 16px; --r-pill: 999px;
+
+  /* 字号标尺 */
+  --fs-xs: 11px; --fs-sm: 12px; --fs-md: 13px; --fs-base: 14px;
+  --fs-lg: 16px; --fs-xl: 20px; --fs-2xl: 26px;
+
+/* 动效：时长与缓动统一，避免 26 个 transition 各写各的 */
+  --dur-fast: .12s;
+  --dur-base: .18s;
+  --dur-slow: .28s;
+  --ease-out: cubic-bezier(.22,.61,.36,1);
+  --ease-in: cubic-bezier(.55,.06,.68,.19);
+
+  /* 层级标尺：全项目层级只允许从此处取值。
+     顺序约束（低 → 高）：
+       页面内容 < 浮标/Dock < 下拉 < 面板 < 侧栏 < 卡片菜单
+       < 添加书签模态 < 设置抽屉 < 抽屉内弹窗 < 全局 confirm < toast < 启动遮罩
+     要点：confirm 与 toast 必须高于所有遮罩，否则被抽屉/面板盖住看不见。 */
+  --z-base: 1;
+  --z-mobile-mask: 199;      /* 移动端分组下拉遮罩 */
+  --z-mobile-list: 200;
+  --z-float-btn: 100000;     /* 左下固定按钮组 */
+  --z-dock: 100002;
+  --z-dock-menu: 100003;
+  --z-dropdown: 100006;      /* 搜索引擎下拉 */
+  --z-panel: 100020;         /* 笔记 / 收纳箱面板 */
+  --z-panel-inner: 100021;
+  --z-panel-preview: 100040; /* 图片预览 */
+  --z-sidebar: 99980;
+  --z-sidebar-menu: 99983;
+  --z-card-menu: 99990;
+  --z-sidebar-pop-mask: 99994;
+  --z-sidebar-pop: 99995;
+  --z-card-menu-mask: 999990;
+  --z-card-menu-panel: 999991;
+  --z-modal-mask: 200010;    /* 添加书签遮罩 */
+  --z-modal: 200020;         /* 添加书签面板 */
+  --z-drawer: 300000;        /* 设置抽屉遮罩（须低于 confirm） */
+  --z-drawer-panel: 300010;
+  --z-drawer-dialog-mask: 300015; /* 导入预览 / 清空数据 */
+  --z-drawer-dialog: 300020;
+  --z-mask: 400000;          /* 全局 confirm 遮罩 */
+  --z-dialog: 400010;        /* 全局 confirm 弹窗 */
+  --z-toast: 500000;         /* toast 必须高于一切 */
+  --z-loading: 999999;       /* 启动遮罩 */
+}
+
+
+/* ============ 全局可访问性 ============ */
+
+/* 统一的键盘焦点环。
+   过去只有 2 处 focus-visible，且书签卡片的 focus-visible 因卡片不可聚焦而永不生效。
+   这里提供全局兜底：任何可聚焦元素获得键盘焦点时都有可见轮廓。 */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+/* 尊重「减少动态效果」系统偏好（WCAG 2.3.3）。
+   项目内存在 infinite 脉冲动画（启动遮罩、保存指示），
+   前庭功能障碍用户会持续感受到缩放脉冲。 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* 刘海屏 / 圆角屏安全区：底部固定元素（Dock、浮动按钮）避免被 Home Indicator 遮挡 */
+:root {
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+}

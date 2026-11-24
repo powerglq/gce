@@ -1,0 +1,21 @@
+# 依赖与构建产物
+node_modules/
+package-lock.json
+extension/newtab-build*/
+dist/
+
+# 第三方代码（不由本项目维护，不做格式化）
+extension/content/vendor/
+
+# 二进制资源
+extension/icons/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.crx
+*.pem
+
+# 工具配置
+.githooks/

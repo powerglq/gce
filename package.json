@@ -1,0 +1,66 @@
+{
+  "name": "gce-launcher",
+  "version": "1.1.0",
+  "private": true,
+  "type": "module",
+  "description": "GCE启动器：Chrome / Edge 新标签页扩展（书签网格 + 多引擎搜索 + 记事本），数据仅保存在本机",
+  "license": "MIT",
+  "homepage": "https://github.com/powerglq/gce#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/powerglq/gce.git"
+  },
+  "bugs": {
+    "url": "https://github.com/powerglq/gce/issues"
+  },
+  "engines": {
+    "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
+  },
+  "scripts": {
+    "build": "vite build",
+    "build:chrome": "node scripts/build-browser.js chrome",
+    "build:edge": "node scripts/build-browser.js edge",
+    "build:all": "node scripts/build-browser.js all",
+    "typecheck": "vue-tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint extension tests --ext .js,.ts,.vue",
+    "lint:fix": "eslint extension tests --ext .js,.ts,.vue --fix",
+    "lint:budget": "node scripts/lint-budget.mjs",
+    "lint:baseline": "node scripts/lint-budget.mjs --update",
+    "check": "npm run typecheck && npm run lint:budget && npm test -- --reporter=dot",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "preview": "vite preview",
+    "dev:watch": "vite build --watch",
+    "dev:run": "node -e \"require('fs').mkdirSync('.chromium-profile/gce-dev', { recursive: true })\" && wait-on ./extension/newtab-build/index.html && web-ext run --target=chromium --source-dir=extension --start-url=chrome://newtab --no-input --chromium-profile=./.chromium-profile/gce-dev --profile-create-if-missing",
+    "dev": "concurrently -n BUILD,BROWSER -c cyan,magenta \"npm:dev:watch\" \"npm:dev:run\"",
+    "setup:hooks": "git config core.hooksPath .githooks"
+  },
+  "dependencies": {
+    "pinia": "^2.1.7",
+    "sortablejs": "^1.15.3",
+    "vue": "^3.5.46"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.268",
+    "@types/sortablejs": "^1.15.8",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "@vue/test-utils": "^2.5.1",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-vue": "^9.33.0",
+    "jsdom": "^30.1.1",
+    "prettier": "^3.6.2",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.0",
+    "vitest": "^1.6.0",
+    "vue-eslint-parser": "^9.4.3",
+    "vue-tsc": "^2.2.12",
+    "wait-on": "^7.2.0",
+    "web-ext": "^8.3.0"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    /* 严格项：过去只开了 strict，导致 250 行未使用导出长期无人发现 */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "jsx": "preserve",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "useDefineForClassFields": true,
+    /* allowJs + checkJs:false：shared/ 与 background.js 为纯 JS（SW 与 newtab 共用），
+       TS 从其 JSDoc 推断类型，不需要手写 .d.ts */
+    "allowJs": true,
+    "checkJs": false,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["chrome"]
+  },
+  "include": [
+    "extension/src/**/*",
+    "extension/shared/**/*.js",
+    "extension/background.js",
+    "tests/**/*",
+    "vite.config.ts",
+    "vitest.config.ts"
+  ],
+  "exclude": ["node_modules", "extension/newtab-build*", "extension/content/vendor"]
+}

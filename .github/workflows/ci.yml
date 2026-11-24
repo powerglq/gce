@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Node 版本以仓库根目录的 .nvmrc 为准，本地与 CI 保持一致
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: 安装依赖
+        run: npm ci
+
+      # 类型检查 + Lint（0 error 且警告不超预算）+ 单元测试
+      - name: 检查
+        run: npm run check
+
+      - name: 构建 Chrome / Edge 发布包
+        run: npm run build:all

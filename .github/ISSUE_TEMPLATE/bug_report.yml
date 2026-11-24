@@ -1,0 +1,45 @@
+name: 问题反馈
+description: 报告一个 bug
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: 感谢反馈！请尽量填写复现步骤，这能帮助我们更快定位问题。安全问题请不要在这里提交，参见 SECURITY.md。
+  - type: textarea
+    id: what
+    attributes:
+      label: 问题描述
+      description: 发生了什么？你期望的结果是什么？
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      placeholder: |
+        1. 打开新标签页
+        2. 点击 …
+        3. 看到 …
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: 扩展版本
+      description: 设置 → 关于 中可以看到
+      placeholder: 1.1.0
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: 浏览器与版本
+      placeholder: Chrome 131 / Edge 131
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: 控制台报错（可选）
+      description: 新标签页按 F12 → Console；Service Worker 的报错在 chrome://extensions 的扩展卡片上点「Service Worker」查看
+      render: text
