@@ -17,7 +17,11 @@
         :title="b.title"
         @contextmenu.prevent="openMenu($event, b.id)"
       >
-        <div class="ico" :style="{ background: b.color || 'var(--tile)' }" @click="open(b)">
+        <div
+          class="ico"
+          :style="{ background: b.icon && !imgError[b.id] ? 'transparent' : b.color || 'var(--tile)' }"
+          @click="open(b)"
+        >
           <img
             v-if="b.icon && !imgError[b.id]"
             :src="b.icon"

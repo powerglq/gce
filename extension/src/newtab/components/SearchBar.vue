@@ -89,7 +89,7 @@
           @pointerenter="activeIndex = i"
           @click="openBookmark(m.bookmark)"
         >
-          <span class="s-ico" :style="{ background: m.bookmark.color || 'var(--tile)' }">
+          <span class="s-ico" :style="{ background: m.bookmark.icon ? 'transparent' : m.bookmark.color || 'var(--tile)' }">
             <img v-if="m.bookmark.icon" :src="m.bookmark.icon" alt="" />
             <template v-else>{{ (m.bookmark.title[0] || '站').toUpperCase() }}</template>
           </span>

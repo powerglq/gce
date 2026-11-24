@@ -26,11 +26,13 @@
           @drop.prevent="onDrop(g.id)"
         >
           <span class="ico"><GroupIcon :name="g.icon" /></span>
-          <span class="name left">{{ g.name }}</span>
+          <span v-if="updatingGroup === g.id" class="name left busy" aria-live="polite">{{ g.name }} · 更新图标 {{ progressText }}</span>
+          <span v-else class="name left">{{ g.name }}</span>
         </button>
 
         <div v-if="menuFor === g.id" class="menu" @click.stop>
           <button @click="openEdit(g)">编辑</button>
+          <button :disabled="!!updatingGroup" @click="refreshIcons(g)">更新图标</button>
           <button class="danger" @click="doRemove(g.id)">删除</button>
         </div>
       </li>
@@ -210,6 +212,36 @@ async function onDrop(targetGroupId: string) {
   }
 }
 
+/** 正在批量更新图标的分类 id（同一时间只允许一个） */
+const updatingGroup = ref('');
+const progressText = ref('');
+async function refreshIcons(g: Group) {
+  menuFor.value = '';
+  if (updatingGroup.value) return;
+  const total = bm.byGroup.get(g.id)?.length ?? 0;
+  if (!total) {
+    toast('该分类下没有链接');
+    return;
+  }
+  updatingGroup.value = g.id;
+  progressText.value = `0/${total}`;
+  // 切到该分类，图标获取到一个显示一个
+  emit('update:modelValue', g.id);
+  try {
+    const { updated } = await bm.refreshGroupIcons(g.id, (done, all) => {
+      progressText.value = `${done}/${all}`;
+    });
+    toast(
+      updated === total ? `已更新 ${updated} 个图标` : `已更新 ${updated} / ${total} 个图标，其余未获取到`,
+      { type: updated ? 'success' : 'warning' }
+    );
+  } catch (err) {
+    notifyError(err, '更新图标失败');
+  } finally {
+    updatingGroup.value = '';
+  }
+}
+
 async function doRemove(id: string) {
   menuFor.value = '';
   const count = bm.byGroup.get(id)?.length ?? 0;
@@ -251,6 +283,10 @@ async function doRemove(id: string) {
 .menu{ position:absolute; right:49px; top:50%; transform: translateY(-50%); background:var(--overlay); border:1px solid var(--border); border-radius:10px; padding:6px; box-shadow: var(--shadow); display:flex; flex-direction:column; gap:6px; z-index: var(--z-sidebar-menu); min-width:140px }
 .menu button{ background:transparent; border:0; color:var(--text); padding:6px 10px; text-align:left; border-radius:8px; cursor:pointer }
 .menu button:hover{ background: var(--overlay-hover) }
+.menu button:disabled{ opacity:.5; cursor:wait }
+/* 批量更新图标的进度：显示在分类名标签上（标签在按钮左侧，不会被选中滑块或相邻按钮遮挡）；
+   「悬停显示」模式下更新期间也强制显示 */
+.group-sidebar .item .name.busy{ opacity:1; background:var(--primary); color:var(--on-accent); border-color:transparent; font-variant-numeric:tabular-nums; box-shadow:var(--shadow-sm) }
 .menu .danger{ color:var(--danger) }
 .ops{ display:flex; align-items:center; justify-content:center; margin-top:6px; pointer-events:auto }
 .add{ width:36px; height:36px; border-radius:10px; border:1px solid var(--border); background: var(--glass); backdrop-filter: blur(4px); color:var(--text); cursor:pointer; box-shadow: var(--shadow); transform: translateX(3px) }

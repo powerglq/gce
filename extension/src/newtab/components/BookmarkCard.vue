@@ -25,7 +25,7 @@
     >⋯</button>
     <div class="icon" :style="iconBoxStyle">
       <img
-        v-if="bookmark.icon && !imgError"
+        v-if="showImg"
         :src="bookmark.icon"
         alt=""
         decoding="async"
@@ -90,6 +90,11 @@ const cardStyle = computed(() => {
     width: `${Math.max(s.iconPx + s.cardPadding * 2, 100)}px`,
   };
 });
+// 图片加载失败回退到首字母；图标变化后允许重新尝试
+const imgError = ref(false);
+watch(() => props.bookmark.icon, () => { imgError.value = false; });
+const showImg = computed(() => !!props.bookmark.icon && !imgError.value);
+
 const iconBoxStyle = computed(() => {
   const { radius, iconPx } = settings.settings;
   // 卡片圆角为 0 时图标也是方形；否则按比例缩小（0.67 倍）
@@ -98,13 +103,11 @@ const iconBoxStyle = computed(() => {
     width: `${iconPx}px`,
     height: `${iconPx}px`,
     borderRadius: `${iconRadius}px`,
-    background: props.bookmark.color || 'var(--tile)',
+    // 底色只用于首字母图标。图标图片大多带透明背景，若仍铺纯色底，
+    // 与底色相近的图标（如红底上的红色图标）会完全看不见
+    background: showImg.value ? 'transparent' : props.bookmark.color || 'var(--tile)',
   };
 });
-
-// 图片加载失败回退到首字母；图标变化后允许重新尝试
-const imgError = ref(false);
-watch(() => props.bookmark.icon, () => { imgError.value = false; });
 
 function open() {
   window.open(props.bookmark.url, settings.settings.openMode === 'newtab' ? '_blank' : '_self');

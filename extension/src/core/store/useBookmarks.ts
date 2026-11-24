@@ -24,6 +24,9 @@ export interface BookmarkInput {
   groupId?: string;
 }
 
+/** 批量获取图标时的并发数（避免同时向大量网站发请求） */
+const ICON_CONCURRENCY = 4;
+
 export const useBookmarks = defineStore('bookmarks', {
   state: () => ({
     ready: false,
@@ -194,6 +197,16 @@ export const useBookmarks = defineStore('bookmarks', {
       });
     },
 
+    /** 写入单个书签的图标（书签已被删除时忽略） */
+    async setIcon(id: string, icon: string) {
+      await this.commit(({ bookmarks }) => {
+        if (!bookmarks.some((b) => b.id === id)) return;
+        return {
+          bookmarks: bookmarks.map((b) => (b.id === id ? { ...b, icon, updatedAt: Date.now() } : b)),
+        };
+      });
+    },
+
     /**
      * 重新获取图标（书签卡片菜单「获取图标」）
      * @returns 是否获取到新图标
@@ -203,13 +216,41 @@ export const useBookmarks = defineStore('bookmarks', {
       if (!target) throw new UserError('链接已被删除');
       const { icon } = await fetchSiteInfo(target.url, { wantTitle: false });
       if (!icon) return false;
-      await this.commit(({ bookmarks }) => {
-        if (!bookmarks.some((b) => b.id === id)) return;
-        return {
-          bookmarks: bookmarks.map((b) => (b.id === id ? { ...b, icon, updatedAt: Date.now() } : b)),
-        };
-      });
+      await this.setIcon(id, icon);
       return true;
+    },
+
+    /**
+     * 批量重新获取某分类下所有书签的图标（分类菜单「更新图标」）
+     * 并发获取；每拿到一个立即写入，卡片随之刷新；没获取到的保留原图标
+     * @param onProgress 每处理完一个书签（无论成功与否）回调一次
+     * @returns 成功更新的数量与总数
+     */
+    async refreshGroupIcons(
+      groupId: string,
+      onProgress?: (done: number, total: number) => void
+    ): Promise<{ updated: number; total: number }> {
+      const targets = this.bookmarks.filter((b) => b.groupId === groupId);
+      let next = 0;
+      let done = 0;
+      let updated = 0;
+      const worker = async () => {
+        while (next < targets.length) {
+          const b = targets[next++];
+          try {
+            const { icon } = await fetchSiteInfo(b.url, { wantTitle: false });
+            if (icon) {
+              await this.setIcon(b.id, icon);
+              updated++;
+            }
+          } catch {
+            /* 单个失败不影响其它书签 */
+          }
+          onProgress?.(++done, targets.length);
+        }
+      };
+      await Promise.all(Array.from({ length: Math.min(ICON_CONCURRENCY, targets.length) }, worker));
+      return { updated, total: targets.length };
     },
   },
 });
