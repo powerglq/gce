@@ -130,6 +130,7 @@ export function defaultSettings() {
     groupNameMode: 'always',
     colorScheme: 'dark',
     widgets: defaultWidgets(),
+    checkUpdate: false,
   };
 }
 
@@ -219,6 +220,7 @@ export function sanitizeSettings(raw) {
     // 键名不用 theme：旧版残留的 theme 字段从未生效，沿用会让部分用户升级后突然变成浅色
     colorScheme: s.colorScheme === 'light' || s.colorScheme === 'system' ? s.colorScheme : 'dark',
     widgets: sanitizeWidgets(s.widgets),
+    checkUpdate: s.checkUpdate === true,
   };
   const opacity = num(s.cardOpacity, 0.2, 1, undefined);
   if (opacity !== undefined) out.cardOpacity = opacity;

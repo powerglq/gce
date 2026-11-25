@@ -104,8 +104,9 @@
         <button
           type="button"
           class="avatar"
-          title="设置"
-          aria-label="设置"
+          :class="{ 'has-update': hasUpdate }"
+          :title="hasUpdate ? '设置（有新版本）' : '设置'"
+          :aria-label="hasUpdate ? '设置（有新版本）' : '设置'"
           @click="settingsOpen = true"
         >
           <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
@@ -273,6 +274,7 @@ import { createResourceManager } from '../core/utils/lifecycle';
 import { toast } from '../core/utils/feedback';
 import { bootstrap, scheduleStartupMaintenance } from './appInit';
 import { syncTheme } from '../core/theme/theme';
+import { availableUpdate } from '../core/utils/update';
 import type { Bookmark } from '../core/types/model';
 
 const bm = useBookmarks();
@@ -301,6 +303,8 @@ const rm = createResourceManager();
 const ready = ref(false);
 const loadError = ref('');
 const settingsOpen = ref(false);
+/** 关闭「检查更新」后不再显示提醒 */
+const hasUpdate = computed(() => settings.settings.checkUpdate && !!availableUpdate());
 const notebookOpen = ref(false);
 const sharedItemsOpen = ref(false);
 const mobileGroupOpen = ref(false);
@@ -657,6 +661,8 @@ async function submitAdd() {
 .avatar{ width:44px; height:44px; border-radius:50%; border:1px solid var(--border); background:var(--glass); backdrop-filter: blur(6px); color:var(--text); cursor:pointer; box-shadow: var(--shadow-sm); transition: transform .15s ease; display:flex; align-items:center; justify-content:center }
 .avatar .ico{ width:20px; height:20px; display:block; }
 .avatar:hover{ transform: translateY(-1px) }
+.avatar.has-update{ position:relative }
+.avatar.has-update::after{ content:''; position:absolute; top:2px; right:2px; width:10px; height:10px; border-radius:50%; background:var(--danger); box-shadow:0 0 0 2px var(--bg) }
 .add-mask{ position:fixed; inset:0; background:var(--scrim); z-index:var(--z-modal-mask) }
 .add-panel{ position:fixed; left:50%; top:50%; transform: translate(-50%, -50%); width:min(560px, 92vw); max-height:80vh; background:var(--glass); backdrop-filter: blur(6px); color:var(--text); border:1px solid var(--border); box-shadow: var(--shadow-lg); padding:16px; z-index:var(--z-modal); border-radius:var(--r-xl); overflow:auto }
 .add-hdr{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px }

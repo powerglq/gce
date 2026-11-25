@@ -150,6 +150,12 @@ describe('sanitizeSettings', () => {
     expect(sanitizeSettings({ widgets: { city: { name: '', lat: 1, lon: 1 } } }).widgets.city).toBeNull();
   });
 
+  it('检查更新：默认关闭，只有 true 才开启', () => {
+    expect(sanitizeSettings({}).checkUpdate).toBe(false);
+    expect(sanitizeSettings({ checkUpdate: true }).checkUpdate).toBe(true);
+    expect(sanitizeSettings({ checkUpdate: 'yes' }).checkUpdate).toBe(false);
+  });
+
   it('applySettingsPatch：值为 undefined 表示恢复默认', () => {
     const cur = sanitizeSettings({ cardOpacity: 0.8, radius: 20 });
     const next = applySettingsPatch(cur, { cardOpacity: undefined, radius: undefined });

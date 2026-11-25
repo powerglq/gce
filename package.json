@@ -1,6 +1,6 @@
 {
   "name": "gce-launcher",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "type": "module",
   "description": "GCE启动器：Chrome / Edge 新标签页扩展（书签网格 + 多引擎搜索 + 记事本），数据仅保存在本机",

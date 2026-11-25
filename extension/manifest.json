@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "GCE启动器",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "新标签页：多引擎搜索、书签网格、Dock、记事本与网页悬浮工具，数据仅保存在本机。",
   "homepage_url": "https://github.com/powerglq/gce",
   "permissions": [

@@ -293,7 +293,32 @@
           <section v-show="tab === 'about'" class="sec glass">
             <h4>关于</h4>
             <p>GCE启动器 v{{ VERSION }}</p>
-            <p>数据仅保存在本机浏览器中；只在获取网站图标与标题、下载远程背景图时联网。</p>
+            <p>数据仅保存在本机浏览器中。何时联网、发送什么数据，见项目主页中的隐私说明。</p>
+            <div class="row">
+              <label>检查更新</label>
+              <input type="checkbox" :checked="s.checkUpdate" @change="setCheckUpdate(checked($event))" />
+              <span class="tip">每天最多查询一次 GitHub 与 Gitee 上的最新版本，有新版本时提醒（不会自动安装）</span>
+            </div>
+            <div v-if="s.checkUpdate" class="row">
+              <label></label>
+              <span class="tip">{{ updateText }}</span>
+              <template v-if="newRelease">
+                <a
+                  v-for="d in downloadLinks"
+                  :key="d.label"
+                  :href="d.url"
+                  target="_blank"
+                  rel="noopener"
+                  class="btn gce-btn gce-btn--primary gce-btn--sm"
+                >{{ d.label }}</a>
+              </template>
+              <button
+                v-else
+                class="btn gce-btn gce-btn--sm"
+                :disabled="updateState.checking"
+                @click="checkForUpdate(true)"
+              >立即检查</button>
+            </div>
             <p>开源协议：MIT License</p>
             <p>
               <a
@@ -382,6 +407,7 @@ import { applyAll } from '../appInit';
 import { toast, confirm } from '../../core/utils/feedback';
 import type { Settings, WeatherCity, Widgets } from '../../core/types/model';
 import { searchCity, cityLabel } from '../../core/utils/weather';
+import { updateState, checkForUpdate, availableUpdate } from '../../core/utils/update';
 
 const props = defineProps<{ open: boolean }>();
 const emit = defineEmits<{ (e: 'close'): void }>();
@@ -395,6 +421,30 @@ const s = computed(() => settings.settings);
 const manifest = chrome.runtime.getManifest();
 const VERSION = manifest.version;
 const REPO_URL = manifest.homepage_url;
+
+// ============ 检查更新 ============
+
+const newRelease = computed(() => availableUpdate());
+/** 两个来源分别给出下载按钮（访问不了 GitHub 的用户可用 Gitee） */
+const downloadLinks = computed(() => {
+  const d = newRelease.value?.downloads ?? {};
+  return [
+    ...(d.github ? [{ label: 'GitHub 下载', url: d.github }] : []),
+    ...(d.gitee ? [{ label: 'Gitee 下载', url: d.gitee }] : []),
+  ];
+});
+const updateText = computed(() => {
+  // 先返回的来源已发现新版本时直接显示，不必等另一个来源
+  if (newRelease.value) return `发现新版本 v${newRelease.value.version}，下载后替换原扩展文件夹，再在扩展管理页点「重新加载」`;
+  if (updateState.checking) return '正在检查…';
+  if (updateState.error) return `检查失败：${updateState.error}`;
+  return updateState.checked ? '已是最新版本' : '尚未检查';
+});
+
+function setCheckUpdate(on: boolean) {
+  set({ checkUpdate: on });
+  if (on) void checkForUpdate(true);
+}
 
 type TabKey = 'general' | 'widgets' | 'data' | 'background' | 'about';
 const TABS: Array<{ key: TabKey; label: string }> = [

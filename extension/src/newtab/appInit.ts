@@ -6,6 +6,7 @@ import { useEngines } from '../core/store/useEngines';
 import { useSharedItems } from '../core/store/useSharedItems';
 import { runIconShrinkOnce } from '../core/utils/iconShrink';
 import { toast } from '../core/utils/feedback';
+import { availableUpdate, checkForUpdate, markNotified } from '../core/utils/update';
 import type { StoreData, StoreField } from '../core/types/model';
 
 /** 把存储数据分发到各 store（启动 / 跨上下文同步 / 导入与清空后） */
@@ -59,13 +60,23 @@ export async function bootstrap(): Promise<StoreData> {
  * - 旧数据中内联的笔记图片迁移到 IndexedDB
  * - 搜索引擎缺失的图标补抓
  * - 历史遗留的超大 favicon 就地瘦身
+ * - 检查更新（用户开启时）
  */
 export function scheduleStartupMaintenance(): void {
   setTimeout(() => {
     void useNotebook().migrateLegacyImages();
     void useEngines().ensureIcons();
     void shrinkIcons();
+    void notifyUpdate();
   }, 1500);
+}
+
+/** 发现新版本时提示一次（同一版本只提示一次；之后设置按钮上保留小红点） */
+async function notifyUpdate() {
+  if (!useSettings().settings.checkUpdate) return;
+  await checkForUpdate();
+  const r = availableUpdate();
+  if (r && markNotified(r.version)) toast(`发现新版本 v${r.version}，可在 设置 → 关于 中下载`, { duration: 6000 });
 }
 
 async function shrinkIcons() {

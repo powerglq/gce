@@ -50,7 +50,7 @@ extension/
 └── src/
     ├── core/
     │   ├── store/         # Pinia：settings / bookmarks / engines / notebook / sharedItems
-    │   ├── utils/         # backup、image、siteCache、iconShrink、bookmarkSearch、lunar、weather …
+    │   ├── utils/         # backup、image、siteCache、iconShrink、bookmarkSearch、lunar、weather、update …
     │   ├── composables/   # useDraggablePanel（浮动面板拖拽 / 缩放）
     │   ├── groupIcons.ts  # 分组图标（内置 SVG）
     │   ├── types/model.ts # 数据类型（与 shared/model.js 同步修改）
@@ -64,7 +64,7 @@ scripts/                   # 发布包构建、Lint 警告预算
 
 | key | 内容 |
 |-----|------|
-| `gce.settings` | 设置（含主题、小组件、Dock 列表、记事本字号字体、面板位置） |
+| `gce.settings` | 设置（含主题、小组件、检查更新开关、Dock 列表、记事本字号字体、面板位置） |
 | `gce.background` | 背景图 dataURL |
 | `gce.fab` | 悬浮按钮开关与位置 |
 | `gce.groups` / `gce.bookmarks` | 分组 / 书签 |

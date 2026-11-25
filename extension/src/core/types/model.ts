@@ -40,8 +40,10 @@ export interface Settings {
   groupNameMode: 'always' | 'hover';
   /** 主题：深色 / 浅色 / 跟随系统 */
   colorScheme: ColorScheme;
-  /** 搜索框上方的小组件 */
+  /** 搜索框左侧的小组件 */
   widgets: Widgets;
+  /** 每天检查一次 GitHub 上是否有新版本（默认关闭） */
+  checkUpdate: boolean;
 }
 
 /** 天气小组件选定的地点（来自 Open-Meteo 地理编码） */
